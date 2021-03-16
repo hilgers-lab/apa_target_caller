@@ -35,27 +35,24 @@ suppressPackageStartupMessages(library(DEXSeq))
 suppressPackageStartupMessages(library(janitor))
 
 runDEXseq <- function(node.tab, sampleData) {
-  # sampleData <- data.frame(sample = colnames(NodeCountsElav_TE[,c(2:5)]),
-  #                          condition=gsub("(.*)_[12]","\\1",colnames(NodeCountsElav_TE[,c(2:5)])))
   require(DEXSeq)
   
   groupID = gsub(":E.*","",rownames(node.tab))
   featureID = gsub(".*:(E.*)","\\1",rownames(node.tab))
   
   assertthat::assert_that(all(colnames(sampleData) %in% c('name','condition')))
-  
-  dxd <- DEXSeqDataSet( node.tab[,sampleData$name], sampleData, 
+  dxd <- DEXSeqDataSet( node.tab[,sampleData$name, drop = FALSE], sampleData, 
                         design= ~ name + exon + condition:exon, 
                         featureID, groupID, featureRanges=NULL, 
                         transcripts=NULL, alternativeCountData=NULL)
+  
   BPPARAM = MulticoreParam(workers=4)
   dxd = estimateSizeFactors( dxd )
+  dxd.object <<- dxd
   dxd = estimateDispersions( dxd, BPPARAM=BPPARAM)
   # plotDispEsts( dxd )
-  
   dxd = testForDEU( dxd, BPPARAM=BPPARAM)
   dxd = estimateExonFoldChanges(dxd, BPPARAM=BPPARAM)
-  
   dxr1 = DEXSeqResults( dxd )
   # plotMA( dxr1, cex=0.8 )
   
@@ -65,9 +62,6 @@ runDEXseq <- function(node.tab, sampleData) {
 }
 
 
-# whippet.featurects <- read_tsv('./Whippet_nodes.featureCounts.tsv', comment ='#')
-# whippet.featurects <- read_tsv('./Whippet_nodes.split.featureCounts.tsv', comment ='#')
-
 whippet.featurects <- read_tsv(opt$table, comment = '#')
 colnames(whippet.featurects) <- gsub('.bam','',basename(colnames(whippet.featurects)))
 whippet.featurects <- as.data.frame(clean_names(whippet.featurects))
@@ -76,23 +70,25 @@ samplesheet = as.data.frame(read_tsv(opt$samplesheet))
 samplesheet$name <- make_clean_names(samplesheet$name)
 samplesheet$condition <- factor(samplesheet$condition, levels = unique(samplesheet$condition))
 
+
 assertthat::assert_that(all(samplesheet$name %in% colnames(whippet.featurects)), msg = 'Mismatching names in samplesheet')
 
-# t0 <- grep(pattern,colnames(whippet.featurects), value=TRUE)
-# sample.table <- data.frame(sample = t0, condition = as.factor(ifelse(grepl('wt',t0),'control','condition')))
-# sample.table$condition <- relevel(sample.table$condition, 'control')
+
 
 t0 <- str_split_fixed(whippet.featurects$geneid, '_', n = 3)
 rownames(whippet.featurects) <- paste0(t0[,1],':E',t0[,2])
 
+## expression filter
+cts.per_gene <- sapply(split(whippet.featurects[,samplesheet$name], t0[,1]), sum)
+keep <- t0[,1] %in% names(which(cts.per_gene > 5))
+
+whippet.featurects <- whippet.featurects[keep,]
+
 # parse data set
 node.tab <- whippet.featurects[,samplesheet$name]
-
 # run DEXseq
-dexseq0 <- runDEXseq(node.tab = round(node.tab), sampleData = samplesheet)
+dexseq0 <- runDEXseq(node.tab = whippet.featurects, sampleData = samplesheet)
 
-# write_tsv(as.data.frame(dexseq0), './results/DEXseq.wt_elav.whitelist.alpha.tsv')
-# write_tsv(as.data.frame(dexseq0), './results/DEXseq.wt_elav.whippet_split.whitelist.alpha.tsv')
 
 tab0 = as.data.frame(dexseq0)
 tab0$genomicData = NULL

@@ -16,6 +16,7 @@ for n in samplesheet_files:
     samplesheets[n] = os.path.join(maindir, config['samplesheets_dir'],''.join([n,'.tsv']))
 
 bam_files = glob.glob(os.path.join(maindir,config['bam_dir'],'*.bam'))
+print(bam_files)
 
 paqr_files = ','.join(config['paqr'])
 isoscm_files = ','.join(config['isoscm'])
@@ -34,7 +35,7 @@ rule writeConfig:
         yaml.dump(config, yaml_stream)
         yaml_stream.close()
 
-
+# potentially outsource and provide as external tool, if the user has isoSCM and PAQR
 rule poolBreakpoints:
     input:
         annotation=config['annotation'],
@@ -60,6 +61,8 @@ rule poolBreakpoints:
             outfile="--outfileNamePrefix {params.prefix}",
             log = "{log}")
 
+# Generalize to use any polyA database
+# make optional
 rule breakSegments:
     input:
         breakpoints=rules.poolBreakpoints.output.breakpoints,
