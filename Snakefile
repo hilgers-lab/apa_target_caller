@@ -18,8 +18,6 @@ for n in samplesheet_files:
 bam_files = glob.glob(os.path.join(maindir,config['bam_dir'],'*.bam'))
 print(bam_files)
 
-paqr_files = ','.join(config['paqr'])
-isoscm_files = ','.join(config['isoscm'])
 
 rule all:
     input:
@@ -43,21 +41,18 @@ rule poolBreakpoints:
     output:
         breakpoints=os.sep.join([config['project_name'], 'Annotation',"Breakpoints_pooled.merged_downstream_breakpoint.gff"])
     params:
-        paqr=','.join(config['paqr'].split(' ')),
-        isoscm=','.join(config['isoscm'].split(' ')),
+        polya_database=config['polya_database'],
         min_dist=config['min_distance'],
-        isoscm_confidence=config['isoscm_confidence'],
         prefix=os.sep.join([config['project_name'], 'Annotation',"Breakpoints_pooled"])
     log:
         os.path.join(config['project_name'], 'Annotation','log', 'Breakpoints_pooled.log')
     shell:
-        "Rscript {script} {options} {gtf} {segments} {isoscm_files} {paqr_files} {outfile} &> {log}".format(
-            script = os.sep.join([maindir, "tools/mergeBreakpoints.R"]),
-            options = "--isoscm.confidence={params.isoscm_confidence} --minimum.distance={params.min_dist}",
+        "Rscript {script} {options} {gtf} {segments} {polya_database} {outfile} &> {log}".format(
+            script = os.sep.join([maindir, "tools/mergeBreakpoints.polyA_db.R"]),
+            options = "--minimum.distance={params.min_dist}",
             gtf="--gtf {input.annotation}",
             segments="--segments {input.segments}",
-            isoscm_files="--isoscm {params.isoscm}",
-            paqr_files="--paqr {params.paqr}",
+            polya_database="--polya_db {params.polya_database}",
             outfile="--outfileNamePrefix {params.prefix}",
             log = "{log}")
 
@@ -73,13 +68,12 @@ rule breakSegments:
         saf=os.sep.join([config['project_name'], 'Annotation',"Segments_split.saf"])          # <prefix>.saf
     params:
         min_dist=config['min_distance'],
-        isoscm_confidence=config['isoscm_confidence']
     log:
         os.path.join(config['project_name'], 'Annotation', 'log', 'Segments_split.log')
     shell:
         "Rscript {script} {options} {gtf} {segments} {breakpoints} {outfile} --debug &> {log}".format(
             script = os.sep.join([maindir, "tools/breakWhippetNodes.R"]),
-            options = "--isoscm.confidence={params.isoscm_confidence} --min.distance={params.min_dist}",
+            options = "--min.distance={params.min_dist}",
             gtf="--gtf {input.annotation}",
             segments="--segments {input.segments}",
             breakpoints="--breakpoints {input.breakpoints}",
