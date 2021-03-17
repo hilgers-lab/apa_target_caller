@@ -91,7 +91,7 @@ utr3_quantification/
 
 ## Installation
 
-The installation through conda can take several hours and dependencies can be resolved manually as well. 
+The installation through conda can take several hours and - especially the R packages - can be installed manually as well. 
 
 ### From conda.yaml
 
