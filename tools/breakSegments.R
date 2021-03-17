@@ -93,7 +93,6 @@ segments_nodes <- subset(segments,
 
 # Import and filter breakpoints
 ## Filter A) by: 
-# - minimum confidence 
 # - min distance
 # - utr3 overlapping 
 # - far enough from nearest TES
