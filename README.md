@@ -41,14 +41,15 @@ exaR is a robust computational approach to quantify alternative poly(A) site usa
 
 ### Other tools 
 
-* DEXseq: 
-
-HTseq library (e.g. conda or pip)
+* DEXseq, HTseq library (e.g. conda or pip)
 
 
 ## Input data
 
-1.) PAQR and/or IsoSCM
+1.) PolyA database
+
+The PolyA database needs to be a BED file, presented single nt positions of polyA sites. These polyA sites will be merged by proximity or removed if they are too close to the boundaroy of an exon segment (DEXseq jargon: exon bins). In Carrasco _et al_ 2020, we derived PolyA sites from isoSCM using RNA-seq and PARQ using 3'-seq.
+
 
 * PAQR
 
@@ -68,7 +69,10 @@ isoSCM_out.gtf
 
 
 
-2.) Whippet annotation
+2.) Gene segmentation 
+
+Gene segmentation happes automatically using DEXseq _dexseq_prepare_annotation.py_ which flattens the isoforms and constructs disjoin exon bins. In Carrasco _et al_ 2020, we used the Whippet segmentation, which also adds exons segment classifications, i.e. the type of splicing/APA.
+
 
 https://github.com/timbitz/Whippet.jl
 
@@ -106,17 +110,12 @@ bam_dir: bam_files/
 samplesheets_dir: samplesheets/
 # reference annotation
 annotation: dm6_ensembl96.gtf
-# original whippet nodes
-segments: Whippet_nodes.gff
-# list of paqr/isoscm breakpoints (separated by space)
-paqr:
-  single_distal_sites.bed
-  tandem_pas_expressions.bed
-isoscm:
-  isoSCM_out.gtf
+# DEXseq path:
+DEXseq_path: <DEXseq installation path>
+# PolyA database path
+polya_database: <polyA database>.bed
 # params for breakpoint filtering
 min_distance: 100
-isoscm_confidence: 0.7
 padj_cutoff: 0.05
 ```
 
@@ -130,31 +129,43 @@ bash run_snakemake.sh results/ config.yaml [<snakemake parameter>]
 ## Output
 
 ```
-utr3_quantification
+utr3_quantification/
 ├── Annotation
+│   ├── annotation.segments.gff
 │   ├── Breakpoints_pooled.merged_downstream_breakpoint.gff
 │   ├── Breakpoints_pooled.merged_intervals.gff
+│   ├── log
+│   │   ├── Breakpoints_pooled.log
+│   │   ├── exon_segmentation.log
+│   │   └── Segments_split.log
 │   ├── Segments_split.breakpoints_selected.gff
 │   ├── Segments_split.gff
 │   ├── Segments_split.nodes_selected.gff
 │   └── Segments_split.saf
 ├── APA_targets
-│   ├── result.APA_targets.gff
-│   ├── result.APA_targets.locus.gff
-│   ├── result.APA_targets.tsv
-│   ├── result.segments_split.dexseq.gff
+│   ├── <sample comparison>.APA_targets.gff
+│   ├── <sample comparison>.APA_targets.locus.gff
+│   ├── <sample comparison>.APA_targets.tsv
+│   ├── <sample comparison>.segments_split.dexseq.gff
+│   └── log
+│       └── <sample comparison>.APA_targets.log
 ├── config.yaml
 ├── DEXseq
-│   ├── result.segments_split.dexseq.tsv
+│   ├── <sample comparison>.segments_split.dexseq.tsv
+│   └── log
+│       └── <sample comparison>.segments_split.dexseq.log
 └── featureCount
+    ├── log
+    │   └── utr3_quantification.segments_split.featureCounts.log
     ├── utr3_quantification.segments_split.featureCounts.tsv
     └── utr3_quantification.segments_split.featureCounts.tsv.summary
 
+
 ```
-+ DEXSeq quanitification of each node/segment: result.segments_split.dexseq.tsv
-+ Differential APA table: result.APA_targets.tsv
-+ Differential APA regions: result.APA_targets.locus.gff
-+ Segments after modification using PAQR/IsoSCM: Segments_split.gff
++ DEXSeq quanitification of each node/segment: <sample comparison>.segments_split.dexseq.tsv
++ Differential APA table: <sample comparison>.APA_targets.tsv
++ Differential APA regions: <sample comparison>.APA_targets.locus.gff
++ Segments after modification integrating PolyA database: Segments_split.gff
 
 
 ## Contributors
