@@ -93,20 +93,7 @@ utr3_quantification/
 
 The installation through conda can take several hours and - especially the R packages - can be installed manually as well. 
 
-### From conda.yaml
-
-`conda env create -f exaR.yaml`
-
-This conda environment config installs
-
-* Python + HTseq
-* R-base + related packages from CRAN, bioconductor *
-  * Tested with R/4.0.3 
-* subread for featureCounts
-* snakemake 
-  * Tested with python>=3.5
-
-### Manual setup
+### Manual setup (Recommended)
 
 ```
 conda create -n exaR  
@@ -120,6 +107,36 @@ Once the conda setup is done, you can manually install the following bioconducto
 * [rtracklayer](https://bioconductor.org/packages/release/bioc/html/rtracklayer.html)
 * [DEXseq](https://www.bioconductor.org/packages/release/bioc/html/DEXSeq.html)
 * [GenomicFeatures](https://bioconductor.org/packages/release/bioc/html/GenomicFeatures.html)
+
+Find path of _dexseq_prepare_annotation.py_
+
+Extract libPaths from R 
+
+`R -e '.libPaths()'`
+
+and replace `<DEXseq installation path>` config entry in
+
+```
+[...]
+# DEXseq path:
+DEXseq_path: <DEXseq installation path>/DEXseq
+[...]
+```
+
+
+### From conda.yaml
+
+`conda env create -f exaR.yaml`
+
+This conda environment config installs
+
+* Python + HTseq
+* R-base + related packages from CRAN, bioconductor *
+  * Tested with R/4.0.3 
+* subread for featureCounts
+* snakemake 
+  * Tested with python>=3.5
+
 
 ## Contributors
 
