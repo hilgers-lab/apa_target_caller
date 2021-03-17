@@ -162,11 +162,12 @@ utr3_quantification/
 
 
 ```
-+ DEXSeq quanitification of each node/segment: <sample comparison>.segments_split.dexseq.tsv
-+ Differential APA table: <sample comparison>.APA_targets.tsv
-+ Differential APA regions: <sample comparison>.APA_targets.locus.gff
-+ Segments after modification integrating PolyA database: Segments_split.gff
++ DEXSeq quanitification of each node/segment: `<sample comparison>.segments_split.dexseq.tsv`
++ Differential APA table: `<sample comparison>.APA_targets.tsv`
++ Differential APA regions: `<sample comparison>.APA_targets.locus.gff`
++ Segments after modification integrating PolyA database: `Segments_split.gff`
 
+`<sample comparison>` is the filename of the samplesheet (cropped tsv extension=
 
 ## Contributors
 
