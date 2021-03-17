@@ -17,7 +17,13 @@ This conda environment config installs
 
 Manual setup
 
-`conda create -n exaR -c conda-forge -c bioconda -c r r-readr r-dplyr r-stringr r-tibble r-ggplot2 r-reshape2 r-pheatmap r-janitor bioconductor-rtracklayer bioconductor-genomicfeatures bioconductor-dexseq htseq snakemake subread  `
+```
+conda create -n exaR  
+conda activate exaR
+conda install -c conda-forge r-readr r-base r-dplyr r-stringr r-tibble r-ggplot2 r-reshape2 r-pheatmap r-janitor 
+conda install -c bioconda bioconductor-rtracklayer bioconductor-genomicfeatures bioconductor-dexseq htseq snakemake subread
+
+```
 
 ## Usage
 
