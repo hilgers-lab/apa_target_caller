@@ -112,7 +112,10 @@ Find path of _dexseq_prepare_annotation.py_
 
 Extract libPaths from R 
 
-`R -e '.libPaths()'`
+```
+R -e '.libPaths()'
+```
+
 
 and replace `<DEXseq installation path>` config entry in
 
