@@ -15,6 +15,10 @@ This conda environment config installs
 * subread for featureCounts
 * snakemake
 
+Manual setup
+
+`conda create -n exaR -c conda-forge bioconda r r-readr r-dplyr r-stringr r-tibble r-ggplot2 r-reshape2 r-pheatmap r-janitor bioconductor-rtracklayer bioconductor-genomicfeatures bioconductor-dexseq htseq snakemake subread`
+
 ## Usage
 
 Run Snakemake pipeline:
