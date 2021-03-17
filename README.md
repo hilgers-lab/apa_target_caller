@@ -11,9 +11,11 @@ exaR is a robust computational approach to quantify alternative poly(A) site usa
 This conda environment config installs
 
 * Python + HTseq
-* R-base + related packages from CRAN, bioconductor
+* R-base + related packages from CRAN, bioconductor 
+** Tested with R/4.0.3 
 * subread for featureCounts
 * snakemake
+** Test with python>=3.5
 
 Manual setup
 
