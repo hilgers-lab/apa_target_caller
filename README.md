@@ -98,7 +98,7 @@ The installation through conda can take several hours and - especially the R pac
 ```
 conda create -n exaR  
 conda activate exaR
-conda install -c conda-forge r-readr r-base r-dplyr r-stringr r-tibble r-ggplot2 r-reshape2 r-pheatmap r-janitor 
+conda install -c conda-forge r-readr r-base r-dplyr r-stringr r-tibble r-ggplot2 r-reshape2 r-pheatmap r-janitor r-optparse
 conda install -c bioconda htseq snakemake subread
 ```
 
