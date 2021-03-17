@@ -1,6 +1,6 @@
 set -e
 
-module load R/4.0.3 subread snakemake
+module load subread R/4.0.3
 
 read directory configfile params <<< "$@"
 

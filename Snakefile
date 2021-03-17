@@ -33,11 +33,23 @@ rule writeConfig:
         yaml.dump(config, yaml_stream)
         yaml_stream.close()
 
+rule exon_segmentation:
+    input:
+        annotation=config['annotation']
+    output:
+        # /data/hilgers/group/rauer/APA_target_caller/apa_target_caller/Annotations/Whippet_nodes.gff
+        segments=os.sep.join([config['project_name'], 'Annotation',"annotation.segments.gff"])
+    params:
+        script = os.path.join(config['DEXseq_path'],"python_scripts/dexseq_prepare_annotation.py")
+    log: os.path.join(config['project_name'], 'Annotation', "log", "exon_segmentation.log")
+    shell:
+        "python {params.script} {input.annotation} {output.segments} &> {log}"
+
 # potentially outsource and provide as external tool, if the user has isoSCM and PAQR
 rule poolBreakpoints:
     input:
         annotation=config['annotation'],
-        segments=config['segments']
+        segments=rules.exon_segmentation.output.segments
     output:
         breakpoints=os.sep.join([config['project_name'], 'Annotation',"Breakpoints_pooled.merged_downstream_breakpoint.gff"])
     params:
@@ -61,7 +73,7 @@ rule poolBreakpoints:
 rule breakSegments:
     input:
         breakpoints=rules.poolBreakpoints.output.breakpoints,
-        segments=config['segments'],
+        segments=rules.exon_segmentation.output.segments,
         annotation=config['annotation']
     output:
         nodes_split=os.sep.join([config['project_name'], 'Annotation',"Segments_split.gff"]), # <prefix>.gff
@@ -72,7 +84,7 @@ rule breakSegments:
         os.path.join(config['project_name'], 'Annotation', 'log', 'Segments_split.log')
     shell:
         "Rscript {script} {options} {gtf} {segments} {breakpoints} {outfile} --debug &> {log}".format(
-            script = os.sep.join([maindir, "tools/breakWhippetNodes.R"]),
+            script = os.sep.join([maindir, "tools/breakSegments.R"]),
             options = "--min.distance={params.min_dist}",
             gtf="--gtf {input.annotation}",
             segments="--segments {input.segments}",

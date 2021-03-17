@@ -55,6 +55,10 @@ Shenker S, Miura P, Sanfilippo P, Lai EC. IsoSCM: improved and alternative 3' UT
 Timothy Sterne-Weiler, Robert J. Weatheritt, Andrew J. Best, Kevin C.H. Ha, Benjamin J. Blencowe, Efficient and Accurate Quantitative Profiling of Alternative Splicing Patterns of Any Complexity on a Laptop, Molecular Cell, Volume 72, Issue 1, 2018
 
 
+* DEXseq: 
+
+HTseq library (e.g. conda or pip)
+
 
 ## Input data
 
