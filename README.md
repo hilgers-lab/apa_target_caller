@@ -1,4 +1,4 @@
-# exaR
+# exaR - APA target calling through exon crawling 
 
 ## Introduction
 
