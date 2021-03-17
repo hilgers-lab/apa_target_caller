@@ -1,129 +1,57 @@
 # exaR
 
-
-## Overview
-
-[Introduction](#Introduction)
-
-[Dependencies](#dependencies)
-
-[Input data](#installation)
-
-[Usage](#usage)
-
-[Output](#output)
-
-[Contributors](#contributors)
-
-[License](#License)
-
-
-### Introduction
+## Introduction
 
 exaR is a robust computational approach to quantify alternative poly(A) site usage from traditional mRNA-seq datasets.
 
+## Installation
 
-## Dependencies
+`conda env create -f exaR.yaml`
 
-### R packages:
+This conda environment config installs
 
-* readr_1.3.1
-* rtracklayer_1.44.2
-* GenomicFeatures
-* dplyr_0.8.3
-* stringr_1.4.0
-* tibble_2.1.3
-* ggplot2_3.2.1
-* reshape2_1.4.3
-* pheatmap_1.0.12
-* DEXSeq_1.28.3
-* janitor_2.0.1
-
-### Other tools 
-
-* DEXseq, HTseq library (e.g. conda or pip)
-
-
-## Input data
-
-1.) PolyA database
-
-The PolyA database needs to be a BED file, presented single nt positions of polyA sites. These polyA sites will be merged by proximity or removed if they are too close to the boundaroy of an exon segment (DEXseq jargon: exon bins). In Carrasco _et al_ 2020, we derived PolyA sites from isoSCM using RNA-seq and PARQ using 3'-seq.
-
-
-* PAQR
-
-https://github.com/zavolanlab/PAQR_KAPAC
-
-example output files:
-single_distal_sites.bed
-tandem_pas_expressions.bed
-
-* IsoSCM
-
-https://github.com/shenkers/isoscm
-
-example output files:
-isoSCM_out.gtf
-
-
-
-
-2.) Gene segmentation 
-
-Gene segmentation happes automatically using DEXseq _dexseq_prepare_annotation.py_ which flattens the isoforms and constructs disjoin exon bins. In Carrasco _et al_ 2020, we used the Whippet segmentation, which also adds exons segment classifications, i.e. the type of splicing/APA.
-
-
-https://github.com/timbitz/Whippet.jl
-
-example output files:
-Whippet_nodes.gff
-
-
-3.) sample sheet
-
-The sample sheet is a tab-separated file with two columns, named name and condition. For comparison between two conditions, the name you assign to "condition" is not relevant, but rather the order is. The group mentioned first (in the above case "ctrl") would be used as a "control" and the group mentioned later would be used as "test".
-
-example file:
-sample_sheet.tsv
-
-
-4.) gene annotation (Gencode / Ensembl / etc)
-
-example file:
-dm6_ensembl96.gtf
-
-5.) bam files
-
-Mapping of RNA-seq data with aligner of choice
-
+* Python + HTseq
+* R-base + related packages from CRAN, bioconductor
+* subread for featureCounts
+* snakemake
 
 ## Usage
 
-Include all input data paths in 'config.yaml'
+Run Snakemake pipeline:
+
+```
+bash run_snakemake.sh results/ config.yaml [<snakemake parameter>]
+```
+
+### Input data
+
+The following inputs are provided by a config file
+
+1) PolyA database: a 6-column BED file of single nucleotide coordinates defining new 3' ends of transcript isoforms, that need to be integrated into the genome annotation.
+2) Genome annotation: The is the entire genome annotation (gtf) containing the full annotation, including at least gene, transcript, exon and CDS information. From this the exon segments are derived and the PolyA sites from the PolyA database are integrated.
+3) Sample sheet: exaR uses DEXseq for identifying differential 3'UTR segments. Here the samplesheet needs to contains columns 'name' and 'condition', and for condition the _control is defined by the first occurrence_.
+4) Alignments: These files need to be in BAM format. Can be produces using [snakePipes mRNA-seq workflow](https://snakepipes.readthedocs.io/en/latest/content/workflows/mRNA-seq.html)
+
+### Config file:
+
+All fields are required:
 
 ```
 # used as prefix
 project_name: utr3_quantification
 # directory with bam files
 bam_dir: bam_files/
+# directory with samplessheets, tsv format and suffix
 samplesheets_dir: samplesheets/
 # reference annotation
 annotation: dm6_ensembl96.gtf
 # DEXseq path:
-DEXseq_path: <DEXseq installation path>
+DEXseq_path: <DEXseq installation path>/DEXseq
 # PolyA database path
 polya_database: <polyA database>.bed
 # params for breakpoint filtering
 min_distance: 100
 padj_cutoff: 0.05
-```
-
-Run Snakemake pipeline:
-
-```
-module load snakemake
-bash run_snakemake.sh results/ config.yaml [<snakemake parameter>]
 ```
 
 ## Output
@@ -177,4 +105,5 @@ Michael Rauer
 
 
 ## License
+
 GNU GPL license (v3)
