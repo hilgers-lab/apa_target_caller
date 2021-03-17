@@ -4,24 +4,16 @@
 
 exaR is a robust computational approach to quantify alternative poly(A) site usage from traditional mRNA-seq datasets.
 
-## Installation
-
-`conda env create -f exaR.yaml`
-
-This conda environment config installs
-
-* Python + HTseq
-* R-base + related packages from CRAN, bioconductor
-* subread for featureCounts
-* snakemake
 
 ## Usage
 
 Run Snakemake pipeline:
 
 ```
-bash run_snakemake.sh results/ config.yaml [<snakemake parameter>]
+bash run_snakemake.sh <working directory> <config>.yaml [<snakemake parameter>]
 ```
+
+Checkout the [Installation instructions](#Installation)
 
 ### Input data
 
@@ -87,15 +79,42 @@ utr3_quantification/
     │   └── utr3_quantification.segments_split.featureCounts.log
     ├── utr3_quantification.segments_split.featureCounts.tsv
     └── utr3_quantification.segments_split.featureCounts.tsv.summary
-
-
 ```
+
 + DEXSeq quanitification of each node/segment: `<sample comparison>.segments_split.dexseq.tsv`
 + Differential APA table: `<sample comparison>.APA_targets.tsv`
 + Differential APA regions: `<sample comparison>.APA_targets.locus.gff`
 + Segments after modification integrating PolyA database: `Segments_split.gff`
 
 `<sample comparison>` is the filename of the samplesheet (cropped tsv extension=
+
+
+## Installation
+
+The installation through conda can take several hours and - especially the R packages - can be installed manually as well. 
+
+### From conda.yaml
+
+`conda env create -f exaR.yaml`
+
+This conda environment config installs
+
+* Python + HTseq
+* R-base + related packages from CRAN, bioconductor *
+  * Tested with R/4.0.3 
+* subread for featureCounts
+* snakemake 
+  * Tested with python>=3.5
+
+### Manual setup
+
+```
+conda create -n exaR  
+conda activate exaR
+conda install -c conda-forge r-readr r-base r-dplyr r-stringr r-tibble r-ggplot2 r-reshape2 r-pheatmap r-janitor 
+conda install -c bioconda bioconductor-rtracklayer bioconductor-genomicfeatures bioconductor-dexseq htseq snakemake subread
+```
+
 
 ## Contributors
 
