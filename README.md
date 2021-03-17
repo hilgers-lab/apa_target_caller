@@ -25,7 +25,7 @@ exaR is a robust computational approach to quantify alternative poly(A) site usa
 
 ## Dependencies
 
-R packages:
+### R packages:
 
 * readr_1.3.1
 * rtracklayer_1.44.2
@@ -39,21 +39,7 @@ R packages:
 * DEXSeq_1.28.3
 * janitor_2.0.1
 
-Other tools:
-
-* PAQR
-
-Gruber, A.J., Schmidt, R., Ghosh, S. et al. Discovery of physiological and cancer-related regulators of 3′ UTR processing with KAPAC. Genome Biol 19, 44 (2018).
-
-* IsoSCM
-
-Shenker S, Miura P, Sanfilippo P, Lai EC. IsoSCM: improved and alternative 3' UTR annotation using multiple change-point inference. RNA. 2015;21(1):14-27. doi:10.1261/rna.046037.114
-
-
-* Whippet
-
-Timothy Sterne-Weiler, Robert J. Weatheritt, Andrew J. Best, Kevin C.H. Ha, Benjamin J. Blencowe, Efficient and Accurate Quantitative Profiling of Alternative Splicing Patterns of Any Complexity on a Laptop, Molecular Cell, Volume 72, Issue 1, 2018
-
+### Other tools 
 
 * DEXseq: 
 
