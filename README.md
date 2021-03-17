@@ -91,6 +91,8 @@ utr3_quantification/
 
 ## Installation
 
+The installation through conda can take several hours and dependencies can be resolved manually as well. 
+
 ### From conda.yaml
 
 `conda env create -f exaR.yaml`
