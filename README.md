@@ -95,6 +95,14 @@ The installation through conda can take several hours and - especially the R pac
 
 ### Manual setup (Recommended)
 
+The manual setup consists of three steps
+
+1. Setup conda environment and install libraries
+2. Install R bioconductor packages
+3. Setup DEXseq installation path
+
+#### Setup conda environment and install libraries
+
 ```
 conda create -n exaR  
 conda activate exaR
@@ -102,11 +110,15 @@ conda install -c conda-forge r-readr r-base r-dplyr r-stringr r-tibble r-ggplot2
 conda install -c bioconda htseq snakemake subread
 ```
 
+#### Install R bioconductor packages
+
 Once the conda setup is done, you can manually install the following bioconductor packages:
 
 * [rtracklayer](https://bioconductor.org/packages/release/bioc/html/rtracklayer.html)
 * [DEXseq](https://www.bioconductor.org/packages/release/bioc/html/DEXSeq.html)
 * [GenomicFeatures](https://bioconductor.org/packages/release/bioc/html/GenomicFeatures.html)
+
+#### Setup DEXseq installation path
 
 Find path of _dexseq_prepare_annotation.py_
 
