@@ -93,6 +93,40 @@ utr3_quantification/
 
 The installation through conda can take several hours and - especially the R packages - can be installed manually as well. 
 
+### Manual setup (Recommended)
+
+```
+conda create -n exaR  
+conda activate exaR
+conda install -c conda-forge r-readr r-base r-dplyr r-stringr r-tibble r-ggplot2 r-reshape2 r-pheatmap r-janitor r-optparse
+conda install -c bioconda htseq snakemake subread
+```
+
+Once the conda setup is done, you can manually install the following bioconductor packages:
+
+* [rtracklayer](https://bioconductor.org/packages/release/bioc/html/rtracklayer.html)
+* [DEXseq](https://www.bioconductor.org/packages/release/bioc/html/DEXSeq.html)
+* [GenomicFeatures](https://bioconductor.org/packages/release/bioc/html/GenomicFeatures.html)
+
+Find path of _dexseq_prepare_annotation.py_
+
+Extract libPaths from R 
+
+```
+R -e '.libPaths()'
+```
+
+
+and replace `<DEXseq installation path>` config entry in
+
+```
+[...]
+# DEXseq path:
+DEXseq_path: <DEXseq installation path>/DEXseq
+[...]
+```
+
+
 ### From conda.yaml
 
 `conda env create -f exaR.yaml`
@@ -106,20 +140,6 @@ This conda environment config installs
 * snakemake 
   * Tested with python>=3.5
 
-### Manual setup
-
-```
-conda create -n exaR  
-conda activate exaR
-conda install -c conda-forge r-readr r-base r-dplyr r-stringr r-tibble r-ggplot2 r-reshape2 r-pheatmap r-janitor 
-conda install -c bioconda htseq snakemake subread
-```
-
-Once the conda setup is done, you can manually install the following bioconductor packages:
-
-* [rtracklayer](https://bioconductor.org/packages/release/bioc/html/rtracklayer.html)
-* [DEXseq](https://www.bioconductor.org/packages/release/bioc/html/DEXSeq.html)
-* [GenomicFeatures](https://bioconductor.org/packages/release/bioc/html/GenomicFeatures.html)
 
 ## Contributors
 
