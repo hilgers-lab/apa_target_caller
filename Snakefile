@@ -16,9 +16,8 @@ for n in samplesheet_files:
     samplesheets[n] = os.path.join(maindir, config['samplesheets_dir'],''.join([n,'.tsv']))
 
 bam_files = glob.glob(os.path.join(maindir,config['bam_dir'],'*.bam'))
+print(bam_files)
 
-paqr_files = ','.join(config['paqr'])
-isoscm_files = ','.join(config['isoscm'])
 
 rule all:
     input:
@@ -34,49 +33,59 @@ rule writeConfig:
         yaml.dump(config, yaml_stream)
         yaml_stream.close()
 
+rule exon_segmentation:
+    input:
+        annotation=config['annotation']
+    output:
+        # /data/hilgers/group/rauer/APA_target_caller/apa_target_caller/Annotations/Whippet_nodes.gff
+        segments=os.sep.join([config['project_name'], 'Annotation',"annotation.segments.gff"])
+    params:
+        script = os.path.join(config['DEXseq_path'],"python_scripts/dexseq_prepare_annotation.py")
+    log: os.path.join(config['project_name'], 'Annotation', "log", "exon_segmentation.log")
+    shell:
+        "python {params.script} {input.annotation} {output.segments} &> {log}"
 
+# potentially outsource and provide as external tool, if the user has isoSCM and PAQR
 rule poolBreakpoints:
     input:
         annotation=config['annotation'],
-        segments=config['segments']
+        segments=rules.exon_segmentation.output.segments
     output:
         breakpoints=os.sep.join([config['project_name'], 'Annotation',"Breakpoints_pooled.merged_downstream_breakpoint.gff"])
     params:
-        paqr=','.join(config['paqr'].split(' ')),
-        isoscm=','.join(config['isoscm'].split(' ')),
+        polya_database=config['polya_database'],
         min_dist=config['min_distance'],
-        isoscm_confidence=config['isoscm_confidence'],
         prefix=os.sep.join([config['project_name'], 'Annotation',"Breakpoints_pooled"])
     log:
         os.path.join(config['project_name'], 'Annotation','log', 'Breakpoints_pooled.log')
     shell:
-        "Rscript {script} {options} {gtf} {segments} {isoscm_files} {paqr_files} {outfile} &> {log}".format(
-            script = os.sep.join([maindir, "tools/mergeBreakpoints.R"]),
-            options = "--isoscm.confidence={params.isoscm_confidence} --minimum.distance={params.min_dist}",
+        "Rscript {script} {options} {gtf} {segments} {polya_database} {outfile} &> {log}".format(
+            script = os.sep.join([maindir, "tools/mergeBreakpoints.polyA_db.R"]),
+            options = "--minimum.distance={params.min_dist}",
             gtf="--gtf {input.annotation}",
             segments="--segments {input.segments}",
-            isoscm_files="--isoscm {params.isoscm}",
-            paqr_files="--paqr {params.paqr}",
+            polya_database="--polya_db {params.polya_database}",
             outfile="--outfileNamePrefix {params.prefix}",
             log = "{log}")
 
+# Generalize to use any polyA database
+# make optional
 rule breakSegments:
     input:
         breakpoints=rules.poolBreakpoints.output.breakpoints,
-        segments=config['segments'],
+        segments=rules.exon_segmentation.output.segments,
         annotation=config['annotation']
     output:
         nodes_split=os.sep.join([config['project_name'], 'Annotation',"Segments_split.gff"]), # <prefix>.gff
         saf=os.sep.join([config['project_name'], 'Annotation',"Segments_split.saf"])          # <prefix>.saf
     params:
         min_dist=config['min_distance'],
-        isoscm_confidence=config['isoscm_confidence']
     log:
         os.path.join(config['project_name'], 'Annotation', 'log', 'Segments_split.log')
     shell:
         "Rscript {script} {options} {gtf} {segments} {breakpoints} {outfile} --debug &> {log}".format(
-            script = os.sep.join([maindir, "tools/breakWhippetNodes.R"]),
-            options = "--isoscm.confidence={params.isoscm_confidence} --min.distance={params.min_dist}",
+            script = os.sep.join([maindir, "tools/breakSegments.R"]),
+            options = "--min.distance={params.min_dist}",
             gtf="--gtf {input.annotation}",
             segments="--segments {input.segments}",
             breakpoints="--breakpoints {input.breakpoints}",

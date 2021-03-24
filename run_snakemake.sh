@@ -1,6 +1,7 @@
 set -e
 
-module load R/3.5.2 subread snakemake
+# module load subread R/4.0.3
+# conda activate exaR
 
 read directory configfile params <<< "$@"
 

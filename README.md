@@ -1,170 +1,156 @@
-# exaR
+# exaR - APA target calling through exon crawling 
 
-
-## Overview
-
-[Introduction](#Introduction)
-
-[Dependencies](#dependencies)
-
-[Input data](#installation)
-
-[Usage](#usage)
-
-[Output](#output)
-
-[Contributors](#contributors)
-
-[License](#License)
-
-
-### Introduction
+## Introduction
 
 exaR is a robust computational approach to quantify alternative poly(A) site usage from traditional mRNA-seq datasets.
 
 
-## Dependencies
-
-R packages:
-
-* readr_1.3.1
-* rtracklayer_1.44.2
-* GenomicFeatures
-* dplyr_0.8.3
-* stringr_1.4.0
-* tibble_2.1.3
-* ggplot2_3.2.1
-* reshape2_1.4.3
-* pheatmap_1.0.12
-* DEXSeq_1.28.3
-* janitor_2.0.1
-
-Other tools:
-
-* PAQR
-
-Gruber, A.J., Schmidt, R., Ghosh, S. et al. Discovery of physiological and cancer-related regulators of 3′ UTR processing with KAPAC. Genome Biol 19, 44 (2018).
-
-* IsoSCM
-
-Shenker S, Miura P, Sanfilippo P, Lai EC. IsoSCM: improved and alternative 3' UTR annotation using multiple change-point inference. RNA. 2015;21(1):14-27. doi:10.1261/rna.046037.114
-
-
-* Whippet
-
-Timothy Sterne-Weiler, Robert J. Weatheritt, Andrew J. Best, Kevin C.H. Ha, Benjamin J. Blencowe, Efficient and Accurate Quantitative Profiling of Alternative Splicing Patterns of Any Complexity on a Laptop, Molecular Cell, Volume 72, Issue 1, 2018
-
-
-
-## Input data
-
-1.) PAQR and/or IsoSCM
-
-* PAQR
-
-https://github.com/zavolanlab/PAQR_KAPAC
-
-example output files:
-single_distal_sites.bed
-tandem_pas_expressions.bed
-
-* IsoSCM
-
-https://github.com/shenkers/isoscm
-
-example output files:
-isoSCM_out.gtf
-
-
-
-
-2.) Whippet annotation
-
-https://github.com/timbitz/Whippet.jl
-
-example output files:
-Whippet_nodes.gff
-
-
-3.) sample sheet
-
-The sample sheet is a tab-separated file with two columns, named name and condition. For comparison between two conditions, the name you assign to "condition" is not relevant, but rather the order is. The group mentioned first (in the above case "ctrl") would be used as a "control" and the group mentioned later would be used as "test".
-
-example file:
-sample_sheet.tsv
-
-
-4.) gene annotation (Gencode / Ensembl / etc)
-
-example file:
-dm6_ensembl96.gtf
-
-5.) bam files
-
-Mapping of RNA-seq data with aligner of choice
-
-
 ## Usage
 
-Include all input data paths in 'config.yaml'
+Run Snakemake pipeline:
+
+```
+bash run_snakemake.sh <working directory> <config>.yaml [<snakemake parameter>]
+```
+
+Checkout the [Installation instructions](#Installation)
+
+### Input data
+
+The following inputs are provided by a config file
+
+1) PolyA database: a 6-column BED file of single nucleotide coordinates defining new 3' ends of transcript isoforms, that need to be integrated into the genome annotation.
+2) Genome annotation: The is the entire genome annotation (gtf) containing the full annotation, including at least gene, transcript, exon and CDS information. From this the exon segments are derived and the PolyA sites from the PolyA database are integrated.
+3) Sample sheet: exaR uses DEXseq for identifying differential 3'UTR segments. Here the samplesheet needs to contains columns 'name' and 'condition', and for condition the _control is defined by the first occurrence_.
+4) Alignments: These files need to be in BAM format. Can be produces using [snakePipes mRNA-seq workflow](https://snakepipes.readthedocs.io/en/latest/content/workflows/mRNA-seq.html)
+
+### Config file:
+
+All fields are required:
 
 ```
 # used as prefix
 project_name: utr3_quantification
 # directory with bam files
 bam_dir: bam_files/
+# directory with samplessheets, tsv format and suffix
 samplesheets_dir: samplesheets/
 # reference annotation
 annotation: dm6_ensembl96.gtf
-# original whippet nodes
-segments: Whippet_nodes.gff
-# list of paqr/isoscm breakpoints (separated by space)
-paqr:
-  single_distal_sites.bed
-  tandem_pas_expressions.bed
-isoscm:
-  isoSCM_out.gtf
+# DEXseq path:
+DEXseq_path: <DEXseq installation path>/DEXseq
+# PolyA database path
+polya_database: <polyA database>.bed
 # params for breakpoint filtering
 min_distance: 100
-isoscm_confidence: 0.7
 padj_cutoff: 0.05
-```
-
-Run Snakemake pipeline:
-
-```
-module load snakemake
-bash run_snakemake.sh results/ config.yaml [<snakemake parameter>]
 ```
 
 ## Output
 
 ```
-utr3_quantification
+utr3_quantification/
 ├── Annotation
+│   ├── annotation.segments.gff
 │   ├── Breakpoints_pooled.merged_downstream_breakpoint.gff
 │   ├── Breakpoints_pooled.merged_intervals.gff
+│   ├── log
+│   │   ├── Breakpoints_pooled.log
+│   │   ├── exon_segmentation.log
+│   │   └── Segments_split.log
 │   ├── Segments_split.breakpoints_selected.gff
 │   ├── Segments_split.gff
 │   ├── Segments_split.nodes_selected.gff
 │   └── Segments_split.saf
 ├── APA_targets
-│   ├── result.APA_targets.gff
-│   ├── result.APA_targets.locus.gff
-│   ├── result.APA_targets.tsv
-│   ├── result.segments_split.dexseq.gff
+│   ├── <sample comparison>.APA_targets.gff
+│   ├── <sample comparison>.APA_targets.locus.gff
+│   ├── <sample comparison>.APA_targets.tsv
+│   ├── <sample comparison>.segments_split.dexseq.gff
+│   └── log
+│       └── <sample comparison>.APA_targets.log
 ├── config.yaml
 ├── DEXseq
-│   ├── result.segments_split.dexseq.tsv
+│   ├── <sample comparison>.segments_split.dexseq.tsv
+│   └── log
+│       └── <sample comparison>.segments_split.dexseq.log
 └── featureCount
+    ├── log
+    │   └── utr3_quantification.segments_split.featureCounts.log
     ├── utr3_quantification.segments_split.featureCounts.tsv
     └── utr3_quantification.segments_split.featureCounts.tsv.summary
+```
+
++ DEXSeq quanitification of each node/segment: `<sample comparison>.segments_split.dexseq.tsv`
++ Differential APA table: `<sample comparison>.APA_targets.tsv`
++ Differential APA regions: `<sample comparison>.APA_targets.locus.gff`
++ Segments after modification integrating PolyA database: `Segments_split.gff`
+
+`<sample comparison>` is the filename of the samplesheet (cropped tsv extension=
+
+
+## Installation
+
+The installation through conda can take several hours and - especially the R packages - can be installed manually as well. 
+
+### Manual setup (Recommended)
+
+The manual setup consists of three steps
+
+1. Setup conda environment and install libraries
+2. Install R bioconductor packages
+3. Setup DEXseq installation path
+
+#### Setup conda environment and install libraries
 
 ```
-+ DEXSeq quanitification of each node/segment: result.segments_split.dexseq.tsv
-+ Differential APA table: result.APA_targets.tsv
-+ Differential APA regions: result.APA_targets.locus.gff
-+ Segments after modification using PAQR/IsoSCM: Segments_split.gff
+conda create -n exaR  
+conda activate exaR
+conda install -c conda-forge r-readr r-base r-dplyr r-stringr r-tibble r-ggplot2 r-reshape2 r-pheatmap r-janitor r-optparse
+conda install -c bioconda htseq snakemake subread
+```
+
+#### Install R bioconductor packages
+
+Once the conda setup is done, you can manually install the following bioconductor packages:
+
+* [rtracklayer](https://bioconductor.org/packages/release/bioc/html/rtracklayer.html)
+* [DEXseq](https://www.bioconductor.org/packages/release/bioc/html/DEXSeq.html)
+* [GenomicFeatures](https://bioconductor.org/packages/release/bioc/html/GenomicFeatures.html)
+
+#### Setup DEXseq installation path
+
+Find path of _dexseq_prepare_annotation.py_
+
+Extract libPaths from R 
+
+```
+R -e '.libPaths()'
+```
+
+
+and replace `<DEXseq installation path>` config entry in
+
+```
+[...]
+# DEXseq path:
+DEXseq_path: <DEXseq installation path>/DEXseq
+[...]
+```
+
+
+### From conda.yaml
+
+`conda env create -f exaR.yaml`
+
+This conda environment config installs
+
+* Python + HTseq
+* R-base + related packages from CRAN, bioconductor *
+  * Tested with R/4.0.3 
+* subread for featureCounts
+* snakemake 
+  * Tested with python>=3.5
 
 
 ## Contributors
@@ -175,4 +161,5 @@ Michael Rauer
 
 
 ## License
+
 GNU GPL license (v3)
