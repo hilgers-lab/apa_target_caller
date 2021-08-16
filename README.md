@@ -103,6 +103,8 @@ The manual setup consists of three steps
 
 #### Setup conda environment and install libraries
 
+If installing the following packages fails, bioconductor install method can deal with R/3.5.2 packages. Check for more: https://www.bioconductor.org/install/ 
+
 ```
 conda create -n exaR  
 conda activate exaR
