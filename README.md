@@ -21,7 +21,7 @@ The following inputs are provided by a config file
 
 1) PolyA database: a 6-column BED file of single nucleotide coordinates defining new 3' ends of transcript isoforms, that need to be integrated into the genome annotation.
 2) Genome annotation: The is the entire genome annotation (gtf) containing the full annotation, including at least gene, transcript, exon and CDS information. From this the exon segments are derived and the PolyA sites from the PolyA database are integrated.
-3) Sample sheet: exaR uses DEXseq for identifying differential 3'UTR segments. Here the samplesheet needs to contains columns 'name' and 'condition', and for condition the _control is defined by the first occurrence_.
+3) Sample sheet: exaR uses DEXseq for identifying differential 3'UTR segments. Here the samplesheet needs to contains columns 'name' and 'condition'. For 'condition' the labels `ctrl` and `cond` are required. Make sure that `ctrl` comes first.
 4) Alignments: These files need to be in BAM format. Can be produces using [snakePipes mRNA-seq workflow](https://snakepipes.readthedocs.io/en/latest/content/workflows/mRNA-seq.html)
 
 ### Config file:
