@@ -37,13 +37,12 @@ rule exon_segmentation:
     input:
         annotation=config['annotation']
     output:
-        # /data/hilgers/group/rauer/APA_target_caller/apa_target_caller/Annotations/Whippet_nodes.gff
         segments=os.sep.join([config['project_name'], 'Annotation',"annotation.segments.gff"])
     params:
         script = os.path.join(config['DEXseq_path'],"python_scripts/dexseq_prepare_annotation.py")
     log: os.path.join(config['project_name'], 'Annotation', "log", "exon_segmentation.log")
     shell:
-        "python {params.script} {input.annotation} {output.segments} &> {log}"
+        "python {params.script} -r no {input.annotation} {output.segments} &> {log}"
 
 # potentially outsource and provide as external tool, if the user has isoSCM and PAQR
 rule poolBreakpoints:
